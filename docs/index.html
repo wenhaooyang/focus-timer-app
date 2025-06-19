@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus Timer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #101820;
+      color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .theme-icons {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .theme-icon {
+      font-size: 24px;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 6px;
+      transition: background-color 0.2s;
+    }
+
+    .theme-icon:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .theme-icon[title] {
+      position: relative;
+    }
+
+    .timer-container {
+      background-color: #1a1f29;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #00ffff;
+    }
+
+    #timer {
+      font-size: 48px;
+      margin: 20px 0;
+      color: #ffffff;
+    }
+
+    #progress {
+      margin-bottom: 30px;
+      font-size: 16px;
+      color: #cccccc;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      text-align: left;
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: none;
+      box-sizing: border-box;
+    }
+
+    input {
+      background-color: #2a2f3a;
+      color: #fff;
+    }
+
+    button {
+      background-color: #00ffff;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #00dddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="theme-icons">
+    <span class="theme-icon" onclick="applyTheme('dark')" title="Dark Theme">🌙</span>
+    <span class="theme-icon" onclick="applyTheme('light')" title="Light Theme">☀️</span>
+    <span class="theme-icon" onclick="applyTheme('midnight')" title="Midnight Blue">🌌</span>
+  </div>
+
+  <div class="timer-container">
+    <h1>Focus Timer</h1>
+    <label for="minSession">Min Session (min)</label>
+    <input type="number" id="minSession" value="3" min="1">
+
+    <label for="maxSession">Max Session (min)</label>
+    <input type="number" id="maxSession" value="5" min="1">
+
+    <label for="breakTime">Break Time (sec)</label>
+    <input type="number" id="breakTime" value="10" min="1">
+
+    <div id="timer">00:00</div>
+    <div id="progress">Progress: 0 / 90 minutes (0%)</div>
+    <button id="startBtn">Start Focus Timer</button>
+  </div>
+
+  <audio id="ding" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+
+  <script>
+    const timerDisplay = document.getElementById('timer');
+    const progressDisplay = document.getElementById('progress');
+    const startBtn = document.getElementById('startBtn');
+    const ding = document.getElementById('ding');
+
+    const minSessionInput = document.getElementById('minSession');
+    const maxSessionInput = document.getElementById('maxSession');
+    const breakTimeInput = document.getElementById('breakTime');
+
+    let totalStudyTime = 0;
+    const totalTarget = 90 * 60;
+    let interval;
+    let timeLeft = 0;
+    let isRunning = false;
+
+    function getRandomInterval(min, max) {
+      return Math.floor(Math.random() * (max - min + 1) + min) * 60;
+    }
+
+    function startNextSession() {
+      const min = parseInt(minSessionInput.value);
+      const max = parseInt(maxSessionInput.value);
+      const breakTime = parseInt(breakTimeInput.value);
+
+      timeLeft = getRandomInterval(min, max);
+      interval = setInterval(tick, 1000);
+      isRunning = true;
+      startBtn.textContent = 'Pause';
+    }
+
+    function tick() {
+      if (timeLeft > 0) {
+        timeLeft--;
+        totalStudyTime++;
+        updateDisplay(timeLeft);
+        updateProgress();
+      } else {
+        clearInterval(interval);
+        ding.play();
+
+        if (totalStudyTime >= totalTarget) {
+          timerDisplay.textContent = "Done! 🎉";
+          progressDisplay.textContent = `Progress: 90 / 90 minutes (100%)`;
+          startBtn.disabled = true;
+          return;
+        }
+
+        setTimeout(() => {
+          ding.play();
+          startNextSession();
+        }, parseInt(breakTimeInput.value) * 1000);
+      }
+    }
+
+    function updateDisplay(seconds) {
+      const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+      const s = String(seconds % 60).padStart(2, '0');
+      timerDisplay.textContent = `${m}:${s}`;
+    }
+
+    function updateProgress() {
+      const minutesStudied = Math.floor(totalStudyTime / 60);
+      const percentComplete = Math.min(100, ((totalStudyTime / totalTarget) * 100).toFixed(1));
+      progressDisplay.textContent = `Progress: ${minutesStudied} / 90 minutes (${percentComplete}%)`;
+    }
+
+    function updateControlStyles(bg, color, border) {
+      const elements = document.querySelectorAll('input');
+      elements.forEach(el => {
+        el.style.backgroundColor = bg;
+        el.style.color = color;
+        el.style.borderColor = border;
+      });
+    }
+
+    function applyTheme(theme) {
+      if (theme === 'light') {
+        document.body.style.backgroundColor = '#ffffff';
+        document.body.style.color = '#000000';
+        updateControlStyles('#ffffff', '#000000', '#ccc');
+      } else if (theme === 'midnight') {
+        document.body.style.backgroundColor = '#0a0f2c';
+        document.body.style.color = '#c0d6f9';
+        updateControlStyles('#1a2238', '#c0d6f9', '#394867');
+      } else {
+        document.body.style.backgroundColor = '#101820';
+        document.body.style.color = '#f4f4f4';
+        updateControlStyles('#2a2f3a', '#fff', '#555');
+      }
+    }
+
+    startBtn.addEventListener('click', () => {
+      if (!isRunning) {
+        minSessionInput.disabled = true;
+        maxSessionInput.disabled = true;
+        breakTimeInput.disabled = true;
+
+        if (timeLeft === 0) {
+          startNextSession();
+        } else {
+          interval = setInterval(tick, 1000);
+          isRunning = true;
+          startBtn.textContent = 'Pause';
+        }
+      } else {
+        clearInterval(interval);
+        isRunning = false;
+        startBtn.textContent = 'Resume';
+      }
+    });
+
+    applyTheme('dark');
+  </script>
+</body>
+</html>

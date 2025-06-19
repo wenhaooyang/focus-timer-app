@@ -1,0 +1,42 @@
+{
+  "name": "focus-timer-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.wenhao.focustimer",
+    "productName": "FocusTimer",
+    "directories": {
+      "output": "dist"
+    },
+    "icon": "focus-timer-icon.ico",
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        },
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "FocusTimer"
+    }
+  },
+  "devDependencies": {
+    "electron": "^36.5.0",
+    "electron-builder": "^24.6.0"
+  }
+}
