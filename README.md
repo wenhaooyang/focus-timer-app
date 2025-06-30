@@ -9,7 +9,7 @@ A minimalist, productivity-enhancing focus timer that helps you study in randomi
 ## 🔗 Live Demo (Web Version)
 
 Try it instantly in your browser:  
-👉 [wenhaooyang.github.io/focus-timer-web](https://wenhaooyang.github.io/focus-timer-app)
+👉 [wenhaooyang.github.io/focus-timer-app](https://wenhaooyang.github.io/focus-timer-app)
 
 ---
 
