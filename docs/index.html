@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Focus Timer</title>
   <style>
     body {
@@ -38,10 +38,6 @@
       background-color: rgba(255, 255, 255, 0.1);
     }
 
-    .theme-icon[title] {
-      position: relative;
-    }
-
     .timer-container {
       background-color: #1a1f29;
       border-radius: 16px;
@@ -65,9 +61,15 @@
     }
 
     #progress {
-      margin-bottom: 30px;
+      margin-bottom: 10px;
       font-size: 16px;
       color: #cccccc;
+    }
+
+    #session-count {
+      font-size: 14px;
+      color: #88f;
+      margin-bottom: 20px;
     }
 
     label {
@@ -126,6 +128,7 @@
 
     <div id="timer">00:00</div>
     <div id="progress">Progress: 0 / 90 minutes (0%)</div>
+    <div id="session-count">Sessions completed today: 0</div>
     <button id="startBtn">Start Focus Timer</button>
   </div>
 
@@ -136,54 +139,21 @@
     const progressDisplay = document.getElementById('progress');
     const startBtn = document.getElementById('startBtn');
     const ding = document.getElementById('ding');
+    const sessionCountDisplay = document.getElementById('session-count');
 
     const minSessionInput = document.getElementById('minSession');
     const maxSessionInput = document.getElementById('maxSession');
     const breakTimeInput = document.getElementById('breakTime');
 
     let totalStudyTime = 0;
-    const totalTarget = 90 * 60;
+    let sessionCount = 0;
+    const totalTarget = 2 * 60; // 2 minutes for testing
     let interval;
     let timeLeft = 0;
     let isRunning = false;
 
     function getRandomInterval(min, max) {
       return Math.floor(Math.random() * (max - min + 1) + min) * 60;
-    }
-
-    function startNextSession() {
-      const min = parseInt(minSessionInput.value);
-      const max = parseInt(maxSessionInput.value);
-      const breakTime = parseInt(breakTimeInput.value);
-
-      timeLeft = getRandomInterval(min, max);
-      interval = setInterval(tick, 1000);
-      isRunning = true;
-      startBtn.textContent = 'Pause';
-    }
-
-    function tick() {
-      if (timeLeft > 0) {
-        timeLeft--;
-        totalStudyTime++;
-        updateDisplay(timeLeft);
-        updateProgress();
-      } else {
-        clearInterval(interval);
-        ding.play();
-
-        if (totalStudyTime >= totalTarget) {
-          timerDisplay.textContent = "Done! 🎉";
-          progressDisplay.textContent = `Progress: 90 / 90 minutes (100%)`;
-          startBtn.disabled = true;
-          return;
-        }
-
-        setTimeout(() => {
-          ding.play();
-          startNextSession();
-        }, parseInt(breakTimeInput.value) * 1000);
-      }
     }
 
     function updateDisplay(seconds) {
@@ -196,6 +166,10 @@
       const minutesStudied = Math.floor(totalStudyTime / 60);
       const percentComplete = Math.min(100, ((totalStudyTime / totalTarget) * 100).toFixed(1));
       progressDisplay.textContent = `Progress: ${minutesStudied} / 90 minutes (${percentComplete}%)`;
+    }
+
+    function updateSessionCount() {
+      sessionCountDisplay.textContent = `Sessions completed today: ${sessionCount}`;
     }
 
     function updateControlStyles(bg, color, border) {
@@ -223,13 +197,56 @@
       }
     }
 
+    function startNextSession() {
+      const min = parseInt(minSessionInput.value);
+      const max = parseInt(maxSessionInput.value);
+      const breakTime = parseInt(breakTimeInput.value);
+
+      timeLeft = getRandomInterval(min, max);
+      interval = setInterval(tick, 1000);
+      isRunning = true;
+      startBtn.textContent = 'Pause';
+    }
+
+    function tick() {
+      if (timeLeft > 0) {
+        timeLeft--;
+        totalStudyTime++;
+        updateDisplay(timeLeft);
+        updateProgress();
+      } else {
+        clearInterval(interval);
+        ding.play();
+
+        if (totalStudyTime >= totalTarget) {
+          timerDisplay.textContent = "Done! 🎉";
+          progressDisplay.textContent = `Progress: 90 / 90 minutes (100%)`;
+          sessionCount++;
+          updateSessionCount();
+          startBtn.textContent = "Let's do it again!";
+          isRunning = false;
+          return;
+        }
+
+        setTimeout(() => {
+          ding.play();
+          startNextSession();
+        }, parseInt(breakTimeInput.value) * 1000);
+      }
+    }
+
     startBtn.addEventListener('click', () => {
       if (!isRunning) {
         minSessionInput.disabled = true;
         maxSessionInput.disabled = true;
         breakTimeInput.disabled = true;
 
-        if (timeLeft === 0) {
+        if (timeLeft === 0 && totalStudyTime >= totalTarget) {
+          // Reset for new session
+          totalStudyTime = 0;
+          updateProgress();
+          startNextSession();
+        } else if (timeLeft === 0) {
           startNextSession();
         } else {
           interval = setInterval(tick, 1000);
@@ -244,6 +261,7 @@
     });
 
     applyTheme('dark');
+    updateSessionCount();
   </script>
 </body>
 </html>
