@@ -30,8 +30,8 @@ You can download and run the Windows version:
 
 | Type         | Link                                                                 |
 |--------------|----------------------------------------------------------------------|
-| 🔧 Installer | [FocusTimer Setup 1.0.0.exe](https://github.com/wenhaooyang/focus-timer-app/releases) |
-| 👜 Portable  | [FocusTimer Portable 1.0.0.zip](https://github.com/wenhaooyang/focus-timer-app/releases) |
+| 🔧 Installer | [FocusTimer Setup 1.0.1.exe](https://github.com/wenhaooyang/focus-timer-app/releases) |
+| 👜 Portable  | [FocusTimer Portable 1.0.1.zip](https://github.com/wenhaooyang/focus-timer-app/releases) |
 
 > 💡 *Note: GitHub release links will be added when you publish your first release.*
 
